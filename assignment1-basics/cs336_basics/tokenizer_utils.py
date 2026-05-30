@@ -59,6 +59,7 @@ def train_bpe_logic(
 
     return vocab, merges_list
 
+# reference: https://github.com/weiruihhh/cs336_note_and_hw/blob/main/chapter1/hw1/pair_all_bpe_tokenzier.py
 def initialize_word_counts(
     input_path: str | os.PathLike, 
     special_tokens: list[str],
