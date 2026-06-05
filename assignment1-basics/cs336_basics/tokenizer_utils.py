@@ -161,7 +161,7 @@ def merge_word_counts(
                 
     return new_word_counts
 
-def get_words_bytes(words: list[str]):
+def get_words_bytes(words: list[str], special_tokens: list[str]):
     """
     Args:
         words: List of string word
@@ -170,8 +170,13 @@ def get_words_bytes(words: list[str]):
     """
     words_bytes = []
     for word in words:
+        
         word_bytes = word.encode("utf-8")
-        words_bytes.append(word_bytes)
+        if special_tokens is not None and word in special_tokens:
+            byte_tuple = tuple([word_bytes])
+        else:
+            byte_tuple = tuple(bytes([b]) for b in word_bytes)
+        words_bytes.append(byte_tuple)
     
     return words_bytes
 
@@ -183,15 +188,50 @@ def merge(word_bytes: tuple[bytes, ...], pair: tuple[bytes, bytes]) -> tuple[byt
     Returns:
         A tuple of bytes
     """
-    new_word_bytes = ()
+    new_word_bytes = []
     i = 0
-    while i < len(word_bytes):
-        if i == len(word_bytes) - 1 or (word_bytes[i], word_bytes[i+1]) != pair:
-            new_word_bytes += word_bytes[i: i+1]
+    word_bytes_lst = list(word_bytes)
+    merged_bytes = b"".join(pair)
+    while i < len(word_bytes_lst):
+        if i == len(word_bytes_lst) - 1 or word_bytes_lst[i] != pair[0] or word_bytes_lst[i+1] != pair[1]:
+            new_word_bytes.append(word_bytes_lst[i])
             i += 1
         else:
-            merged_bytes = b"".join(word_bytes[i:i+2])
-            new_word_bytes += tuple([merged_bytes])
+            new_word_bytes.append(merged_bytes)
             i += 2
+    return tuple(new_word_bytes)
+
+def special_aware_split(text: str, special_tokens : list[str]) -> list[str]:
+    """
+    Args:
+        text: raw text may containing special tokens to be extracted
+        special_tokens: a list of special tokens 
+    Returns:
+        a list of splited text containing nonspecial text and special text 
+    """
+    text_lst = []
+    pre = 0
+    cur = 0
+    if special_tokens is None:
+        text_lst.append(text)
+        return text_lst
+    
+    while cur < len(text):
+        flag = False
+        for special_token in special_tokens:
+            if (text.startswith(special_token, cur)):
+                if pre != cur:
+                    text_lst.append(text[pre:cur])
+                text_lst.append(special_token)
+                cur += len(special_token)
+                pre = cur
+                flag = True
+                break
+        if flag == False:
+            cur += 1
+    
+    if pre <= cur - 1:
+        text_lst.append(text[pre: cur])
+    
+    return text_lst
             
-    return new_word_bytes
