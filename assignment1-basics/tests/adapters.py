@@ -13,6 +13,7 @@ from cs336_basics.tokenizer import BPETokenizer
 from cs336_basics.tokenizer_utils import train_bpe_logic
 from cs336_basics.linear import Linear
 from cs336_basics.embedding import Embedding
+from cs336_basics.rmsnorm import RMSNorm
 
 
 def run_linear(
@@ -395,7 +396,14 @@ def run_rmsnorm(
         Float[Tensor,"... d_model"]: Tensor of with the same shape as `in_features` with the output of running
         RMSNorm of the `in_features`.
     """
-    raise NotImplementedError
+    rmsnorm = RMSNorm(d_model, eps)
+
+    dic = {"weights":weights}
+    rmsnorm.load_state_dict(dic)
+
+    nor_features = rmsnorm(in_features)
+
+    return nor_features
 
 
 def run_silu(in_features: Float[Tensor, " ..."]) -> Float[Tensor, " ..."]:
