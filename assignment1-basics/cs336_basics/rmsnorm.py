@@ -16,6 +16,7 @@ class RMSNorm(nn.Module):
 
     def forward(self, x: Float[torch.Tensor, "... d_model"]) -> Float[torch.Tensor, "... d_model"]:
 
+        assert x.shape[-1] == self.d_model, f"shape of x {x.shape[0]} should be equal to {self.d_model}"
         # save original precision of x type
         ori_dtype = x.dtype
         x = x.to(torch.float32)

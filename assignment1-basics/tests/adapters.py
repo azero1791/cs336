@@ -14,6 +14,7 @@ from cs336_basics.tokenizer_utils import train_bpe_logic
 from cs336_basics.linear import Linear
 from cs336_basics.embedding import Embedding
 from cs336_basics.rmsnorm import RMSNorm
+from cs336_basics.swiglu import Swiglu
 
 
 def run_linear(
@@ -101,7 +102,15 @@ def run_swiglu(
     # swiglu.w1.weight.data = w1_weight
     # swiglu.w2.weight.data = w2_weight
     # swiglu.w3.weight.data = w3_weight
-    raise NotImplementedError
+    swiglu = Swiglu(d_model, d_ff)
+
+    dic = {"linear1.weights":w1_weight, "linear2.weights":w2_weight, "linear3.weights":w3_weight}
+
+    swiglu.load_state_dict(dic)
+
+    output = swiglu(in_features)
+
+    return output
 
 
 def run_scaled_dot_product_attention(
