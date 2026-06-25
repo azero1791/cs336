@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch import sigmoid
 from cs336_basics.linear import Linear
 from jaxtyping import Float
-from einops import einsum
+
 
 class Swiglu(nn.Module):
     def __init__(self, d_model: int, d_ff: int) -> None:
