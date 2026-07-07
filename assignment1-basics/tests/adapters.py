@@ -19,7 +19,7 @@ from cs336_basics.swiglu import Swiglu
 from cs336_basics.rope import Rope
 from cs336_basics.softmax import softmax
 from cs336_basics.scaled_dot_product_attention import scaled_dot_product_attention
-
+from cs336_basics.transformer import Transformer
 
 def run_linear(
     d_in: int,
@@ -317,7 +317,21 @@ def run_transformer_block(
         Float[Tensor, "batch sequence_length d_model"] Tensor with the output of
         running the Transformer block on the input features while using RoPE.
     """
-    raise NotImplementedError
+    transformer_block = Transformer(d_model, num_heads, d_ff, max_seq_len, theta)
+    new_weights = {"multihead_self_attention.q_embedding.weights": weights["attn.q_proj.weight"],
+                   "multihead_self_attention.k_embedding.weights": weights["attn.k_proj.weight"],
+                   "multihead_self_attention.v_embedding.weights": weights["attn.v_proj.weight"],
+                   "multihead_self_attention.output_projection.weights": weights["attn.output_proj.weight"],
+                   "rmsnorm_multihead.weights": weights["ln1.weight"],
+                   "feedforward_network.linear1.weights": weights["ffn.w1.weight"],
+                   "feedforward_network.linear2.weights": weights["ffn.w2.weight"],
+                   "feedforward_network.linear3.weights": weights["ffn.w3.weight"],
+                   "rmsnorm_feedforward.weights": weights["ln2.weight"]}
+    transformer_block.load_state_dict(new_weights)
+
+    output = transformer_block.forward(in_features)
+
+    return output
 
 
 def run_transformer_lm(
