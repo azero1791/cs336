@@ -17,9 +17,9 @@ class Swiglu(nn.Module):
         self.linear2 = Linear(d_ff, d_model)
         self.linear3 = Linear(d_model, d_ff)
 
-    def forward(self, in_features : Float[torch.Tensor, "... d_in"], load_weight=False) -> Float[torch.Tensor, "... d_out"]:
-        o1 = self.linear1(in_features) * sigmoid(self.linear1(in_features))
+    def forward(self, in_features : Float[torch.Tensor, "... d_in"]) -> Float[torch.Tensor, "... d_out"]:
+        silu = self.linear1(in_features) * sigmoid(self.linear1(in_features))
         o3 = self.linear3(in_features)
-        o2 = self.linear2(o1 + o3)
+        output = self.linear2(silu * o3)
 
-        return o2
+        return output

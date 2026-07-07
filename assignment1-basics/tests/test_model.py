@@ -79,6 +79,7 @@ def test_multihead_self_attention(numpy_snapshot, in_embeddings, d_model, n_head
     q_proj_weight, k_proj_weight, v_proj_weight, o_proj_weight = [
         d[f"layers.0.attn.{k}_proj.weight"] for k in ["q", "k", "v", "output"]
     ]
+    breakpoint()
     actual_output = run_multihead_self_attention(
         d_model=d_model,
         num_heads=n_heads,

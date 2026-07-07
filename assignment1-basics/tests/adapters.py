@@ -170,7 +170,7 @@ def run_multihead_self_attention(
         implementation with the given QKV projection weights and input features.
     """
     multihead_self_attention = Multihead_self_attention(d_model, num_heads)
-    dir = {"q_embedding.weights":q_proj_weight, "k_embedding.weights":k_proj_weight, "v_embedding.weights":v_proj_weight, "o_embedding.weights":o_proj_weight}
+    dir = {"q_embedding.weights":q_proj_weight, "k_embedding.weights":k_proj_weight, "v_embedding.weights":v_proj_weight, "output_projection.weights":o_proj_weight}
     multihead_self_attention.load_state_dict(dir)
     output = multihead_self_attention.forward(in_features)
 
@@ -213,7 +213,12 @@ def run_multihead_self_attention_with_rope(
         Float[Tensor, " ... sequence_length d_model"]: Tensor with the output of running your optimized, batched multi-headed attention
         implementation with the given QKV projection weights and input features.
     """
-    raise NotImplementedError
+    multihead_self_attention = Multihead_self_attention(d_model, num_heads, max_seq_len, theta)
+    dir = {"q_embedding.weights":q_proj_weight, "k_embedding.weights":k_proj_weight, "v_embedding.weights":v_proj_weight, "output_projection.weights":o_proj_weight}
+    multihead_self_attention.load_state_dict(dir)
+    output = multihead_self_attention.forward(in_features, use_rope=True, token_positions=token_positions)
+
+    return output
 
 
 def run_rope(
