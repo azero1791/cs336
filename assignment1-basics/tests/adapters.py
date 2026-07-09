@@ -20,6 +20,7 @@ from cs336_basics.rope import Rope
 from cs336_basics.softmax import softmax
 from cs336_basics.scaled_dot_product_attention import scaled_dot_product_attention
 from cs336_basics.transformer import Transformer
+from cs336_basics.transformer_lm import Transformer_LM
 
 def run_linear(
     d_in: int,
@@ -413,8 +414,28 @@ def run_transformer_lm(
         Float[Tensor, "batch_size sequence_length vocab_size"]: Tensor with the predicted unnormalized
         next-word distribution for each token.
     """
-    raise NotImplementedError
+    transformer_lm = Transformer_LM(vocab_size, context_length, d_model, num_layers, num_heads, d_ff, rope_theta)
+    weights_dict = {"embedding.lookup": weights["token_embeddings.weight"],
+                    "linear.weights": weights["lm_head.weight"],
+                    "rmsnorm.weights": weights["ln_final.weight"]}
+    for i in range(num_layers):
+        weights_dict[f"transformer_block_lst.{i}.feedforward_network.linear1.weights"] = weights[f"layers.{i}.ffn.w1.weight"]
+        weights_dict[f"transformer_block_lst.{i}.feedforward_network.linear2.weights"] = weights[f"layers.{i}.ffn.w2.weight"]
+        weights_dict[f"transformer_block_lst.{i}.feedforward_network.linear3.weights"] = weights[f"layers.{i}.ffn.w3.weight"]
+        weights_dict[f"transformer_block_lst.{i}.multihead_self_attention.q_embedding.weights"] = weights[f"layers.{i}.attn.q_proj.weight"]
+        weights_dict[f"transformer_block_lst.{i}.multihead_self_attention.k_embedding.weights"] = weights[f"layers.{i}.attn.k_proj.weight"]
+        weights_dict[f"transformer_block_lst.{i}.multihead_self_attention.v_embedding.weights"] = weights[f"layers.{i}.attn.v_proj.weight"]
+        weights_dict[f"transformer_block_lst.{i}.multihead_self_attention.output_projection.weights"] = weights[f"layers.{i}.attn.output_proj.weight"]
+        
+        weights_dict[f"transformer_block_lst.{i}.rmsnorm_multihead.weights"] = weights[f"layers.{i}.ln1.weight"]
+        weights_dict[f"transformer_block_lst.{i}.rmsnorm_feedforward.weights"] = weights[f"layers.{i}.ln2.weight"]
 
+
+    transformer_lm.load_state_dict(weights_dict)
+
+    output = transformer_lm.forward(in_indices)
+
+    return output 
 
 def run_rmsnorm(
     d_model: int,
