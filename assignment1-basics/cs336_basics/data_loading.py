@@ -2,7 +2,6 @@ import numpy as np
 import torch
 from typing import Tuple
 from jaxtyping import Int
-from einops import rearrange
 
 def data_loading(x: Int[np.ndarray, "token_ids"], batch_size: int, context_length: int, device : torch.device | None=None) ->Tuple[
     Int[torch.Tensor, "batch_size context_length"],
