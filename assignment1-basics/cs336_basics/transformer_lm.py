@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch
 
+from jaxtyping import Int, Float
 from cs336_basics.transformer import Transformer
 from cs336_basics.embedding import Embedding
 from cs336_basics.rmsnorm import RMSNorm
@@ -26,8 +27,8 @@ class Transformer_LM(nn.Module):
         self.linear = Linear(d_model, vocab_size)
         
 
-    def forward(self, in_features: torch.Tensor) -> torch.Tensor:
-        output_embedding = self.embedding(in_features)
+    def forward(self, in_token_ids:  Int[torch.Tensor, "batch_size context_length"]) -> Float[torch.Tensor, "batch_size context_length vocab_size"]:
+        output_embedding = self.embedding(in_token_ids)
         input_transformer = output_embedding
         for transformer_block in self.transformer_block_lst:
             output_transformer = transformer_block(input_transformer)

@@ -38,7 +38,7 @@ class DataConfig:
 @dataclass
 class RuntimeConfig:
     device: str
-    max_steps: int
+    epoches: int
     batch_size: int
     max_l2_norm: float
 
